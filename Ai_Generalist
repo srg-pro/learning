@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Generalist Roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #FAFAF8;
+    --surface: #FFFFFF;
+    --surface2: #F5F4F0;
+    --border: #E8E6E0;
+    --border2: #D8D5CC;
+    --text: #1A1916;
+    --text2: #6B6860;
+    --text3: #A8A49C;
+    --ink: #0F0E0C;
+    --shadow: rgba(0,0,0,0.06);
+    --shadow-md: rgba(0,0,0,0.10);
+    --radius: 12px;
+    --sidebar-w: 260px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+  @keyframes shimmer { from{background-position:-200% 0} to{background-position:200% 0} }
+  .fade-up { animation: fadeUp 0.3s ease forwards; }
+
+  /* ── LAYOUT ── */
+  #app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  /* TOP BAR */
+  #topbar {
+    display: flex; align-items: center; gap: 16px;
+    padding: 0 24px; height: 54px; flex-shrink: 0;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    box-shadow: 0 1px 0 var(--border);
+  }
+  #topbar .logo {
+    font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700;
+    color: var(--ink); white-space: nowrap; letter-spacing: -0.3px;
+  }
+  #topbar .logo span { font-style: italic; color: var(--step-color, #555); }
+  #topbar .divider { width: 1px; height: 22px; background: var(--border); flex-shrink: 0; }
+  #topbar .step-label {
+    font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0;
+  }
+  #topbar .step-label strong { color: var(--text2); font-weight: 500; }
+  #xp-area { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  #xp-area .xp-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3); white-space: nowrap; }
+  #xp-bar-wrap { width: 100px; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; border: 1px solid var(--border); }
+  #xp-bar { height: 100%; border-radius: 2px; background: linear-gradient(90deg, #FF6B35, #A855F7, #3B82F6); transition: width 0.5s ease; }
+  #duration-pill {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    padding: 4px 12px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+    border: 1px solid var(--step-border, #ddd); background: var(--step-bg, #f9f9f9);
+    color: var(--step-color, #555);
+  }
+
+  /* BODY ROW */
+  #body { display: flex; flex: 1; overflow: hidden; }
+
+  /* SIDEBAR */
+  #sidebar {
+    width: var(--sidebar-w); flex-shrink: 0;
+    background: var(--surface); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; transition: width 0.25s ease; overflow: hidden;
+  }
+  #sidebar.collapsed { width: 56px; }
+  #collapse-btn {
+    display: flex; align-items: center; justify-content: flex-end; padding: 10px 14px;
+    background: none; border: none; border-bottom: 1px solid var(--border);
+    cursor: pointer; color: var(--text3); font-size: 14px; width: 100%;
+    transition: color 0.2s;
+  }
+  #sidebar.collapsed #collapse-btn { justify-content: center; }
+  #collapse-btn:hover { color: var(--text); }
+  #collapse-icon { transition: transform 0.25s; }
+  #sidebar.collapsed #collapse-icon { transform: rotate(180deg); }
+
+  #steps-list { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 8px 0; }
+  .step-item { border-left: 3px solid transparent; transition: all 0.2s; }
+  .step-item.active { border-left-color: var(--step-color, #555); background: var(--step-bg-light, #f9f9f9); }
+  .step-btn {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    padding: 9px 14px; background: none; border: none; cursor: pointer;
+    text-align: left; transition: background 0.15s;
+  }
+  .step-btn:hover { background: var(--surface2); }
+  .step-icon-wrap { position: relative; flex-shrink: 0; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+  .step-emoji { font-size: 18px; line-height: 1; }
+  .step-done-badge {
+    position: absolute; top: -3px; right: -4px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #22C55E; border: 2px solid var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 5px; color: white; font-weight: bold;
+  }
+  .step-partial-dot {
+    position: absolute; top: -3px; right: -4px;
+    width: 8px; height: 8px; border-radius: 50%;
+    border: 2px solid var(--surface); animation: pulse 2s infinite;
+  }
+  .step-text { min-width: 0; flex: 1; }
+  .step-num { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--text3); letter-spacing: 1px; }
+  .step-title { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 1px; }
+  .step-item.active .step-title { color: var(--text); font-weight: 500; }
+  #sidebar.collapsed .step-text { display: none; }
+
+  .topic-list { padding: 2px 10px 6px 14px; }
+  .topic-btn {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%; padding: 5px 10px; background: none; border: none;
+    cursor: pointer; border-radius: 8px; text-align: left; transition: background 0.15s;
+  }
+  .topic-btn:hover { background: var(--surface2); }
+  .topic-btn.active { background: var(--step-bg-light, #f5f5f5); }
+  .topic-check {
+    width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0;
+    border: 1.5px solid var(--border2); background: transparent;
+    display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+  }
+  .topic-check.done { border-color: #22C55E; background: #DCFCE7; }
+  .topic-check.active-dot { border-color: var(--step-color, #888); }
+  .topic-check .check-inner { width: 6px; height: 6px; border-radius: 50%; background: var(--step-color, #888); }
+  .topic-check .check-tick { font-size: 8px; color: #22C55E; font-weight: bold; }
+  .topic-name { font-family: 'DM Sans', sans-serif; font-size: 11.5px; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .topic-btn.active .topic-name { color: var(--text); font-weight: 500; }
+  .topic-btn.done-topic .topic-name { color: #22C55E; }
+
+  #sidebar-footer { padding: 12px 14px; border-top: 1px solid var(--border); flex-shrink: 0; }
+  #sidebar.collapsed #sidebar-footer { display: none; }
+  .sidebar-progress-label { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .sidebar-progress-label span { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3); }
+  .sidebar-bar-wrap { height: 3px; background: var(--surface2); border-radius: 2px; overflow: hidden; border: 1px solid var(--border); }
+  .sidebar-bar { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+
+  /* CONTENT AREA */
+  #content-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* TOPIC TABS */
+  #topic-tabs {
+    display: flex; align-items: center; gap: 6px;
+    padding: 10px 24px; border-bottom: 1px solid var(--border);
+    background: var(--surface); overflow-x: auto; flex-shrink: 0;
+  }
+  .tab-btn {
+    padding: 6px 16px; border-radius: 8px; border: 1px solid var(--border);
+    background: transparent; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    font-size: 13px; color: var(--text3); white-space: nowrap; transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .tab-btn:hover { background: var(--surface2); color: var(--text2); }
+  .tab-btn.active { border-color: var(--step-color, #888); background: var(--step-bg-light, #f5f5f5); color: var(--text); font-weight: 500; }
+  .tab-btn.done-tab { border-color: #BBF7D0; background: #F0FDF4; color: #22C55E; }
+  #topic-tabs .subtitle-label { margin-left: auto; font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3); white-space: nowrap; flex-shrink: 0; }
+
+  /* SCROLLABLE CONTENT */
+  #scroll-content {
+    flex: 1; overflow-y: auto; padding: 28px 32px 32px;
+    scroll-behavior: smooth;
+  }
+
+  /* TOPIC HEADER CARD */
+  .topic-header-card {
+    display: flex; align-items: flex-start; gap: 16px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px; margin-bottom: 24px;
+    box-shadow: 0 2px 12px var(--shadow);
+    border-top: 3px solid var(--step-color, #ccc);
+  }
+  .topic-icon-box {
+    width: 52px; height: 52px; border-radius: 12px;
+    background: var(--step-bg-light, #f5f5f5); border: 1px solid var(--step-border, #ddd);
+    display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0;
+  }
+  .topic-meta-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--step-color, #888); letter-spacing: 1.5px; margin-bottom: 5px; }
+  .topic-heading { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+  .topic-badges { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .badge {
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    padding: 3px 9px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); color: var(--text2);
+  }
+  .badge.diff { border-color: transparent; }
+
+  /* SECTION LABEL */
+  .section-label {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  }
+  .section-label .line { height: 1px; flex: 1; background: var(--border); }
+  .section-label span { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3); letter-spacing: 2px; white-space: nowrap; }
+
+  /* PROGRESS BOX */
+  .progress-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px; margin-bottom: 24px;
+    box-shadow: 0 1px 4px var(--shadow);
+  }
+  .progress-box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .progress-box-header .plabel { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--step-color, #888); letter-spacing: 1.5px; }
+  .progress-box-header .pcount { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3); }
+  .progress-box-header .pcount.done { color: #22C55E; }
+  .progress-track { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin-bottom: 14px; border: 1px solid var(--border); }
+  .progress-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+  .checklist-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 7px 0; cursor: pointer; transition: opacity 0.15s; border: none; background: none; width: 100%; text-align: left;
+  }
+  .checklist-item:hover { opacity: 0.8; }
+  .checkbox {
+    width: 18px; height: 18px; border-radius: 5px; flex-shrink: 0;
+    border: 1.5px solid var(--border2); background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 1px; transition: all 0.2s; cursor: pointer;
+  }
+  .checkbox.checked { border-color: var(--step-color, #888); background: var(--step-bg-light, #f5f5f5); }
+  .checkbox .tick { font-size: 10px; font-weight: bold; }
+  .checklist-text { font-family: 'DM Sans', sans-serif; font-size: 13.5px; color: var(--text); line-height: 1.5; transition: all 0.2s; }
+  .checklist-text.checked { color: var(--text3); text-decoration: line-through; }
+
+  /* WHAT TO LEARN */
+  .learn-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; margin-bottom: 24px;
+    box-shadow: 0 1px 4px var(--shadow);
+  }
+  .learn-item { border-bottom: 1px solid var(--border); }
+  .learn-item:last-child { border-bottom: none; }
+  .learn-btn {
+    display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px;
+    width: 100%; background: none; border: none; cursor: pointer; text-align: left;
+    transition: background 0.15s;
+  }
+  .learn-btn:hover { background: var(--surface2); }
+  .learn-diamond { color: var(--step-color, #888); font-size: 9px; margin-top: 5px; flex-shrink: 0; }
+  .learn-text { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); line-height: 1.65; }
+  .learn-arrow { color: var(--text3); font-size: 11px; flex-shrink: 0; margin-top: 4px; transition: transform 0.2s; }
+  .learn-arrow.open { transform: rotate(180deg); }
+  .deep-dive {
+    margin: 0 16px 14px 36px; padding: 14px 16px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-left: 3px solid var(--step-color, #ccc);
+    border-radius: 8px;
+  }
+  .deep-dive-label { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--step-color, #888); letter-spacing: 1.5px; margin-bottom: 8px; }
+  .deep-dive-text { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text2); line-height: 1.8; }
+
+  /* RESOURCES */
+  .resources-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 24px; }
+  .resource-card {
+    display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; justify-content: space-between;
+    box-shadow: 0 1px 3px var(--shadow); transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  .resource-card:hover { box-shadow: 0 3px 10px var(--shadow-md); border-color: var(--step-border, #ddd); }
+  .resource-icon { font-size: 14px; flex-shrink: 0; }
+  .resource-info .rname { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text); font-weight: 500; }
+  .resource-info .rurl { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); margin-top: 2px; }
+  .resource-type {
+    font-family: 'DM Mono', monospace; font-size: 8px; flex-shrink: 0;
+    padding: 2px 7px; border-radius: 6px; border: 1px solid var(--step-border, #ddd);
+    background: var(--step-bg-light, #f9f9f9); color: var(--step-color, #888);
+  }
+
+  /* MISSION */
+  .mission-card {
+    border-radius: 14px; padding: 20px; margin-bottom: 20px;
+    position: relative; overflow: hidden;
+    background: linear-gradient(135deg, var(--step-bg-light, #f9f9f9), var(--surface));
+    border: 1px solid var(--step-border, #e0e0e0);
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+  .mission-watermark {
+    position: absolute; bottom: -8px; right: 12px;
+    font-size: 64px; opacity: 0.05; pointer-events: none; user-select: none;
+  }
+  .mission-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--step-color, #888); letter-spacing: 1.5px; margin-bottom: 12px; }
+  .mission-text { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--ink); line-height: 1.85; font-style: italic; }
+
+  /* NOTES */
+  .notes-trigger {
+    display: flex; align-items: center; gap: 12px; width: 100%;
+    padding: 14px; background: var(--surface); border-radius: 10px; cursor: pointer;
+    border: 1.5px dashed var(--border2); transition: all 0.2s; text-align: left;
+  }
+  .notes-trigger.has-note { border-style: solid; border-color: var(--step-border, #ddd); background: var(--step-bg-light, #fafafa); }
+  .notes-trigger:hover { border-color: var(--step-color, #aaa); }
+  .notes-trigger-icon { font-size: 18px; }
+  .notes-trigger-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3); letter-spacing: 1px; }
+  .notes-trigger.has-note .notes-trigger-label { color: var(--step-color, #888); }
+  .notes-preview { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text3); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 380px; }
+  .notes-editor { background: var(--surface); border: 1px solid var(--step-border, #ddd); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px var(--shadow); }
+  .notes-textarea {
+    width: 100%; min-height: 110px; background: transparent; border: none;
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px;
+    line-height: 1.7; padding: 16px; outline: none; resize: vertical;
+  }
+  .notes-actions { display: flex; gap: 8px; padding: 8px 12px; border-top: 1px solid var(--border); }
+  .btn-save {
+    padding: 7px 18px; border-radius: 8px; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 10px;
+    background: var(--step-color, #888); color: white; border: none; transition: opacity 0.2s;
+  }
+  .btn-save:hover { opacity: 0.85; }
+  .btn-cancel {
+    padding: 7px 18px; border-radius: 8px; cursor: pointer; font-family: 'DM Mono', monospace; font-size: 10px;
+    background: var(--surface2); color: var(--text2); border: 1px solid var(--border2); transition: background 0.2s;
+  }
+  .btn-cancel:hover { background: var(--border); }
+
+  /* BOTTOM NAV */
+  #bottom-nav {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 32px 16px; border-top: 1px solid var(--border);
+    background: var(--surface); flex-shrink: 0;
+  }
+  .nav-btn {
+    padding: 11px 20px; border-radius: 10px; cursor: pointer;
+    font-family: 'DM Mono', monospace; font-size: 11px; transition: all 0.2s;
+    border: 1px solid var(--border2); background: var(--surface2); color: var(--text2);
+  }
+  .nav-btn:hover:not(:disabled) { background: var(--border); color: var(--text); }
+  .nav-btn:disabled { opacity: 0.35; cursor: default; }
+  .nav-btn.primary {
+    background: var(--step-color, #888); color: white; border-color: transparent;
+    font-weight: 500; box-shadow: 0 4px 14px var(--step-glow, rgba(0,0,0,0.1));
+  }
+  .nav-btn.primary:hover { opacity: 0.9; }
+  .nav-btn.complete { background: #F0FDF4; color: #22C55E; border-color: #BBF7D0; cursor: default; }
+  #step-dots { flex: 1; display: flex; justify-content: center; align-items: center; gap: 6px; }
+  .step-dot { height: 8px; border-radius: 4px; cursor: pointer; border: none; transition: all 0.25s; background: var(--border2); }
+  .step-dot.active { width: 24px; background: var(--step-color, #888); }
+  .step-dot:not(.active) { width: 8px; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 767px) {
+    #sidebar { display: none; }
+    #topbar { padding: 0 14px; gap: 10px; }
+    #topbar .logo { font-size: 13px; }
+    #topbar .step-label { display: none; }
+    #duration-pill { font-size: 9px; padding: 3px 8px; }
+    #xp-area { gap: 7px; }
+    #xp-bar-wrap { width: 70px; }
+
+    /* Mobile sticky header extension */
+    #mobile-nav {
+      display: block;
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      position: sticky; top: 54px; z-index: 30;
+    }
+    #mobile-steps { display: flex; gap: 5px; padding: 10px 14px 8px; overflow-x: auto; }
+    #mobile-step-pill {
+      flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px;
+      border: 1.5px solid var(--border); background: var(--surface2);
+      font-size: 16px; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; transition: all 0.2s; position: relative;
+    }
+    #mobile-step-pill.active { border-color: var(--step-color, #888); background: var(--step-bg-light, #f5f5f5); }
+    #mobile-overall-progress { padding: 0 14px 6px; }
+    #mobile-progress-track { height: 2px; background: var(--surface2); border-radius: 1px; overflow: hidden; }
+    #mobile-progress-fill { height: 100%; border-radius: 1px; transition: width 0.4s; }
+    #mobile-progress-pct { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--text3); text-align: right; margin-top: 3px; padding-bottom: 4px; }
+    #mobile-tabs { display: flex; gap: 6px; padding: 0 14px 10px; overflow-x: auto; border-bottom: 1px solid var(--border); }
+
+    #topic-tabs { display: none; }
+    #content-area { overflow: hidden; }
+    #scroll-content { padding: 16px 14px 120px; }
+    .resources-grid { grid-template-columns: 1fr; }
+
+    #bottom-nav { padding: 10px 14px 20px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 40; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); }
+    #step-dots { display: none; }
+    .topic-header-card { padding: 14px; }
+    .topic-heading { font-size: 18px; }
+    #scroll-content { padding-bottom: 100px; }
+  }
+  @media (min-width: 768px) {
+    #mobile-nav { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- TOP BAR -->
+  <div id="topbar">
+    <div class="logo">AI <span id="logo-step-name">Generalist</span></div>
+    <div class="divider"></div>
+    <div class="step-label"><strong id="topbar-step-label">7 Steps · 18 Weeks</strong></div>
+    <div id="xp-area">
+      <span class="xp-label" id="xp-label">⚡ 0 / 3300 XP</span>
+      <div id="xp-bar-wrap"><div id="xp-bar" style="width:0%"></div></div>
+      <span class="xp-label" id="topics-done-label">0/14 done</span>
+    </div>
+    <div class="divider"></div>
+    <div id="duration-pill">3–4 Weeks</div>
+  </div>
+
+  <!-- MOBILE NAV (injected by JS) -->
+  <div id="mobile-nav"></div>
+
+  <div id="body">
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+      <button id="collapse-btn" onclick="toggleSidebar()">
+        <span id="collapse-icon">‹</span>
+      </button>
+      <div id="steps-list"></div>
+      <div id="sidebar-footer">
+        <div class="sidebar-progress-label">
+          <span>OVERALL PROGRESS</span>
+          <span id="sidebar-pct">0%</span>
+        </div>
+        <div class="sidebar-bar-wrap">
+          <div class="sidebar-bar" id="sidebar-bar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT AREA -->
+    <div id="content-area">
+      <div id="topic-tabs"></div>
+      <div id="scroll-content" class="fade-up"></div>
+      <div id="bottom-nav">
+        <button class="nav-btn" id="btn-back" onclick="goPrev()">← Back</button>
+        <div id="step-dots"></div>
+        <button class="nav-btn primary" id="btn-next" onclick="goNext()">Next Topic →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────
+const steps = [
+  {
+    id:1, icon:"⚡", title:"Master Prompting & AI Models", subtitle:"Foundation Layer", duration:"3–4 Weeks",
+    color:"#D97706", glow:"rgba(217,119,6,0.15)", bgLight:"#FFFBEB", border:"#FDE68A",
+    topics:[
+      { name:"Advanced Prompting", xp:150, difficulty:"Beginner",
+        details:[
+          {text:"Zero-shot, Few-shot, Chain-of-Thought (CoT) prompting", deep:"Zero-shot: ask the model without examples. Few-shot: provide 2–5 examples in the prompt before your question. CoT: add 'Think step by step' — it forces the model to reason aloud before answering, boosting accuracy on logic tasks by ~30%."},
+          {text:"Role prompting, Tree of Thought, ReAct framework", deep:"Role prompt: 'You are a senior software engineer…' primes the model's knowledge distribution. Tree of Thought branches multiple solution paths simultaneously. ReAct interleaves Reasoning (R) and Action (Act) — e.g., the model reasons, calls a tool, observes result, reasons again."},
+          {text:"Prompt chaining for complex multi-step tasks", deep:"Break a large task into 3–5 sequential prompts where each output feeds the next input. Example: Prompt 1 → extract keywords → Prompt 2 → research each keyword → Prompt 3 → synthesize findings. Reduces errors from trying to do everything in one shot."},
+          {text:"Negative prompting & constraint-based prompting", deep:"Negative prompting: explicitly state what NOT to do ('Do not use bullet points', 'Avoid technical jargon'). Constraints force creativity — e.g., 'Explain quantum entanglement in exactly 3 sentences using only 5th-grade vocabulary'."},
+        ],
+        resources:[
+          {name:"Learn Prompting", url:"learnprompting.org", type:"Free Course"},
+          {name:"Anthropic Prompt Library", url:"docs.anthropic.com/claude/prompt-library", type:"Reference"},
+          {name:"OpenAI Prompt Engineering Guide", url:"platform.openai.com/docs/guides/prompt-engineering", type:"Docs"},
+          {name:"Prompt Engineering by Lilian Weng", url:"lilianweng.github.io/posts/2023-03-15-prompt-engineering", type:"Deep Dive"},
+        ],
+        practice:"Build a 'Prompt Portfolio' — solve 20 real-world tasks using different techniques. For each: document the technique used, the prompt, the output quality (1–10), and what you'd improve. Publish it as a Notion page.",
+        checklist:["Wrote 5 zero-shot prompts","Tried Chain-of-Thought on a math problem","Built a 3-step prompt chain","Created your prompt portfolio doc"],
+        timeEstimate:"~8 hours"
+      },
+      { name:"Multi-Model Experimentation", xp:150, difficulty:"Beginner",
+        details:[
+          {text:"Compare GPT-4o, Claude 3.5, Gemini 1.5, Mistral, LLaMA", deep:"GPT-4o: best for structured JSON output and function calling. Claude 3.5 Sonnet: best for long documents, nuanced writing, coding. Gemini 1.5: best for 1M-token context (full codebases). Mistral: fast & open-source. LLaMA 3: best for local deployment."},
+          {text:"Understand strengths: reasoning, coding, vision, speed", deep:"Reasoning benchmarks: GPQA, MMLU, ARC-Challenge. Coding benchmarks: HumanEval, SWE-Bench. Vision: MMMU. Speed: tokens/sec via api.together.xyz. Each model has a sweet spot — don't use a hammer for a screw."},
+          {text:"Use each model's Playground / API to test same prompts", deep:"Go to: platform.openai.com, claude.ai, aistudio.google.com, console.mistral.ai. Pick 5 identical prompts and run them on all platforms. Screenshot outputs. This builds intuition faster than reading 10 articles."},
+          {text:"Evaluate outputs: consistency, accuracy, creativity", deep:"Build a simple scoring rubric: Accuracy (0–3), Coherence (0–3), Creativity (0–2), Speed (0–2). Rate each model output. Track results in a Google Sheet. Over time you'll know instinctively which model to reach for."},
+        ],
+        resources:[
+          {name:"LMSYS Chatbot Arena", url:"chat.lmsys.org", type:"Tool"},
+          {name:"Hugging Face Open LLM Leaderboard", url:"huggingface.co/spaces/open-llm-leaderboard", type:"Reference"},
+          {name:"nat.dev — side-by-side testing", url:"nat.dev", type:"Tool"},
+          {name:"Artificial Analysis benchmarks", url:"artificialanalysis.ai", type:"Data"},
+        ],
+        practice:"Run a 'Model Olympics': same 10 prompts across 5 models. Score each on your rubric. Write a 300-word summary of your findings. Post it on LinkedIn or X — this alone gets you noticed.",
+        checklist:["Signed up for all 5 model playgrounds","Created scoring rubric","Ran Model Olympics test","Published findings publicly"],
+        timeEstimate:"~6 hours"
+      },
+      { name:"Run LLMs Locally", xp:200, difficulty:"Intermediate",
+        details:[
+          {text:"Install Ollama or LM Studio on your machine", deep:"Ollama (Mac/Linux/Windows): install via brew install ollama or ollama.ai. LM Studio: GUI-based, great for beginners. Both let you download and run models with one command. Minimum specs: 8GB RAM for 7B models, 16GB+ for 13B+."},
+          {text:"Run LLaMA 3, Mistral 7B, Phi-3 locally", deep:"ollama pull llama3 → ollama run llama3. Phi-3 Mini runs on 4GB RAM and outperforms models 10x its size on reasoning. Try all three and note the speed/quality differences. Local models = zero API costs + full privacy."},
+          {text:"Understand quantization (Q4, Q8) and hardware requirements", deep:"Quantization compresses model weights: Q4 = 4-bit (fastest, lowest quality), Q8 = 8-bit (slower, higher quality), F16 = full precision (needs beefy GPU). Rule of thumb: model size in GB ≈ (parameters × bits) / 8. A 7B Q4 model = ~4GB."},
+          {text:"Set up a local chat interface with Open WebUI", deep:"Open WebUI gives you a ChatGPT-like UI for your local models. Run with Docker: docker run -d -p 3000:8080 ghcr.io/open-webui/open-webui:main. Now you have a fully private AI."},
+        ],
+        resources:[
+          {name:"Ollama — local model runner", url:"ollama.ai", type:"Tool"},
+          {name:"LM Studio — GUI for local LLMs", url:"lmstudio.ai", type:"Tool"},
+          {name:"Open WebUI — local chat interface", url:"github.com/open-webui/open-webui", type:"Open Source"},
+          {name:"Hugging Face GGUF models", url:"huggingface.co/models?library=gguf", type:"Models"},
+        ],
+        practice:"Host your own local AI assistant. Chat with it 30 mins daily for a week. Track: what it's good at, what it fails at, and how it compares to cloud models for YOUR use cases.",
+        checklist:["Installed Ollama or LM Studio","Downloaded and ran 3 models locally","Set up Open WebUI","Completed 7-day local AI challenge"],
+        timeEstimate:"~5 hours setup + daily practice"
+      },
+      { name:"Fine-tune with Playground", xp:250, difficulty:"Advanced",
+        details:[
+          {text:"Understand temperature, top-p, frequency/presence penalty", deep:"Temperature (0–2): 0 = deterministic, 2 = chaotic. For factual tasks: 0.1–0.3. For creative tasks: 0.7–1.2. Top-p (nucleus sampling): 0.9 means only consider tokens comprising the top 90% probability mass. Frequency penalty reduces repetition. Presence penalty encourages topic diversity."},
+          {text:"Use the Playground to test parameter effects visually", deep:"Go to platform.openai.com/playground. Set the same prompt, change ONE parameter at a time. Run 5 generations each. This is how you build an empirical understanding instead of just memorizing rules."},
+          {text:"Create fine-tuning datasets (JSONL format)", deep:"Each line is a JSON object with messages array containing system, user, and assistant roles. You need minimum 10 examples, but 50–100 gives much better results. Quality > quantity — every example should be perfect."},
+          {text:"Fine-tune GPT-3.5 with 50–100 examples on a specific style", deep:"Upload JSONL to platform.openai.com/finetune. Training takes 15–45 min and costs ~$0.008/1K tokens. After training, test your model in Playground. Great for customer support, specific personas, structured output."},
+        ],
+        resources:[
+          {name:"OpenAI Platform Playground", url:"platform.openai.com/playground", type:"Tool"},
+          {name:"OpenAI Fine-Tuning Docs", url:"platform.openai.com/docs/guides/fine-tuning", type:"Docs"},
+          {name:"Hugging Face PEFT Library", url:"huggingface.co/docs/peft", type:"Library"},
+          {name:"Axolotl — fine-tuning framework", url:"github.com/OpenAccess-AI-Collective/axolotl", type:"Open Source"},
+        ],
+        practice:"Fine-tune a model on YOUR writing style. Collect 50 samples of text you've written (emails, posts, essays). Format as JSONL. Fine-tune. Test if it sounds like you. Then iterate.",
+        checklist:["Experimented with all 4 parameters in Playground","Created 50-example JSONL dataset","Completed a fine-tuning run","Tested fine-tuned model vs base model"],
+        timeEstimate:"~10 hours"
+      },
+    ]
+  },
+  {
+    id:2, icon:"🔗", title:"MCP Connectors & Voice Agents", subtitle:"Integration Layer", duration:"3–4 Weeks",
+    color:"#7C3AED", glow:"rgba(124,58,237,0.12)", bgLight:"#F5F3FF", border:"#DDD6FE",
+    topics:[
+      { name:"MCP (Model Context Protocol)", xp:200, difficulty:"Intermediate",
+        details:[
+          {text:"Understand what MCP is: standardized AI-to-tool communication", deep:"MCP is like USB-C for AI tools — a universal protocol so any AI can talk to any tool without custom code. Anthropic open-sourced it in late 2024. Instead of building a custom integration for each service, you build one MCP server and any Claude-compatible client can use it."},
+          {text:"Connect Claude/GPT to tools: files, databases, APIs", deep:"MCP servers expose 'tools' (functions the AI can call) and 'resources' (data the AI can read). Example: a filesystem MCP server exposes tools like read_file, write_file, list_directory. The AI decides when to call these based on context."},
+          {text:"Build online connectors: Google Drive, Notion, Gmail, Slack", deep:"Official MCP servers exist for: filesystem, git, PostgreSQL, Slack, Google Drive, GitHub. Clone the repo, add your OAuth credentials, configure Claude Desktop's config.json, and Claude can now directly interact with these services."},
+          {text:"Build offline connectors: local files, SQLite, desktop apps", deep:"Local MCP servers run on your machine with no internet — great for privacy. SQLite MCP server lets Claude query your local databases. Filesystem server lets Claude read/write files. These run as local processes communicating over stdin/stdout."},
+        ],
+        resources:[
+          {name:"MCP Official Docs", url:"modelcontextprotocol.io", type:"Docs"},
+          {name:"MCP Servers Registry", url:"github.com/modelcontextprotocol/servers", type:"Open Source"},
+          {name:"Claude Desktop MCP Setup", url:"docs.anthropic.com/claude/docs/mcp", type:"Guide"},
+          {name:"MCP Python SDK", url:"github.com/modelcontextprotocol/python-sdk", type:"Library"},
+        ],
+        practice:"Connect Claude Desktop to your Google Drive via MCP. Ask it to: summarize your last 5 documents, find files about a specific topic, and draft a reply email. Document the process as a step-by-step tutorial.",
+        checklist:["Installed Claude Desktop","Set up filesystem MCP server","Connected Google Drive MCP","Built one custom MCP tool"],
+        timeEstimate:"~8 hours"
+      },
+      { name:"Autonomous Voice Agents", xp:250, difficulty:"Intermediate",
+        details:[
+          {text:"Design system prompts that define agent personality & scope", deep:"A voice agent system prompt must cover: persona (name, personality, tone), scope (what it can/cannot help with), knowledge (specific facts about your business), and response style. Voice responses CANNOT use bullet points — write conversationally. Keep answers under 2 sentences for voice."},
+          {text:"Build guardrails: what the agent can/cannot do", deep:"Hard guardrails: explicitly list off-limits topics in the system prompt. 'You must never discuss competitor pricing. If asked, say: I can only speak to our products.' Add a fallback: 'If unsure, say: Let me connect you to a human.' Test by trying to break your own agent."},
+          {text:"Use ElevenLabs + Vapi.ai or Bland.ai for voice integration", deep:"Vapi.ai connects your LLM to phone calls. Pipeline: caller speaks → Vapi transcribes (Deepgram) → sends text to your LLM → LLM responds → ElevenLabs converts to speech → plays back. Latency target: under 1 second. Cost: ~$0.05–0.10 per minute of call."},
+          {text:"Connect voice → LLM → action pipeline (end-to-end)", deep:"The real power: when the voice agent can TAKE ACTIONS. Example: caller asks to book appointment → agent calls your calendar API → books the slot → confirms verbally. Use Vapi's function calling to trigger webhooks."},
+        ],
+        resources:[
+          {name:"Vapi.ai — voice AI platform", url:"vapi.ai", type:"Platform"},
+          {name:"ElevenLabs Voice API", url:"elevenlabs.io/docs", type:"API"},
+          {name:"Bland.ai — conversational AI", url:"bland.ai", type:"Platform"},
+          {name:"Retell AI for voice agents", url:"retellai.com", type:"Platform"},
+        ],
+        practice:"Build a voice agent that answers FAQs about YOU — your skills, availability, and services. Deploy it with a real phone number via Vapi. Call it 10 times and refine the prompt based on how it handles edge cases.",
+        checklist:["Created Vapi account and first agent","Written system prompt with guardrails","Integrated ElevenLabs voice","Tested with real phone number"],
+        timeEstimate:"~10 hours"
+      },
+    ]
+  },
+  {
+    id:3, icon:"🎨", title:"Diffusion Models & AI Clone", subtitle:"Creative AI Layer", duration:"3–4 Weeks",
+    color:"#DB2777", glow:"rgba(219,39,119,0.12)", bgLight:"#FDF2F8", border:"#F9A8D4",
+    topics:[
+      { name:"Diffusion Models Deep Dive", xp:200, difficulty:"Intermediate",
+        details:[
+          {text:"Learn how Stable Diffusion works (noise → image process)", deep:"Diffusion models start with pure noise and iteratively denoise it over ~20–50 steps, guided by your text prompt (via CLIP). The U-Net learns to predict noise at each step. The VAE encodes/decodes between pixel space and latent space (8x compressed). Understanding this helps you debug bad outputs."},
+          {text:"Use ComfyUI or Automatic1111 for local image generation", deep:"Automatic1111: easy UI, install via git clone + launch script, 8GB VRAM minimum. ComfyUI: node-based workflow editor — more complex but infinitely customizable. Start with A1111, graduate to ComfyUI when you need automation."},
+          {text:"Understand LoRA, ControlNet, inpainting, img2img", deep:"LoRA: a small file (~10–150MB) that specializes a model without full fine-tuning. ControlNet: guides image structure using depth maps, pose skeletons, or edge detection. Inpainting: fill masked areas with generated content. img2img: transform an existing image."},
+          {text:"Explore FLUX, SDXL, and latest image models", deep:"SDXL: 6.5B parameter model with much better quality than SD1.5. FLUX.1 (Black Forest Labs, 2024): current SOTA for photorealism. FLUX has superior text rendering and anatomy. FLUX.1-schnell is the fast distilled version."},
+        ],
+        resources:[
+          {name:"Invoke AI — production image gen", url:"invoke.ai", type:"Tool"},
+          {name:"ComfyUI on GitHub", url:"github.com/comfyanonymous/ComfyUI", type:"Open Source"},
+          {name:"Civitai — models & LoRAs", url:"civitai.com", type:"Community"},
+          {name:"Stable Diffusion Art tutorials", url:"stable-diffusion-art.com", type:"Tutorials"},
+        ],
+        practice:"Generate 100 images in a consistent style using a specific LoRA + model combo. Build a mini portfolio of AI-generated art. Write a 'generation recipe' doc: model, LoRA, CFG, steps, sampler, prompt structure.",
+        checklist:["Installed A1111 or ComfyUI locally","Downloaded SDXL or FLUX model","Trained or downloaded a LoRA","Generated 100 portfolio images"],
+        timeEstimate:"~12 hours"
+      },
+      { name:"Build Your AI Clone", xp:300, difficulty:"Advanced",
+        details:[
+          {text:"Train a LoRA on 20–50 photos of yourself (face training)", deep:"Collect 20–50 photos: varied lighting, angles, expressions, backgrounds. Crop to 512×512 focusing on face. Use kohya_ss or Hugging Face AutoTrain. Training takes ~1 hour on Google Colab. Tag photos with your trigger word (e.g., 'ohwx person'). Output: a 50–150MB .safetensors file."},
+          {text:"Use HeyGen or Akool for talking avatar creation", deep:"HeyGen: upload a 30-second video of yourself talking → generates a photorealistic talking avatar. You type text, it outputs video of you saying it. D-ID works similarly. Akool adds real-time face swap."},
+          {text:"Clone your voice with ElevenLabs (30-min voice sample)", deep:"ElevenLabs Instant Voice Clone: upload 1 minute of clean audio. Professional Clone: upload 30+ minutes for near-perfect results. Record in a quiet room, no background noise. Read from a book for natural prosody."},
+          {text:"Combine visual + voice clone into a unified digital twin", deep:"Pipeline: Write script → ElevenLabs generates voice audio → HeyGen syncs your avatar's lips to the audio → export video. This is a 'digital twin': it looks like you, sounds like you, says what you script. Always disclose it's AI-generated content."},
+        ],
+        resources:[
+          {name:"HeyGen — talking avatars", url:"heygen.com", type:"Platform"},
+          {name:"ElevenLabs — voice cloning", url:"elevenlabs.io", type:"Platform"},
+          {name:"Kohya_ss — LoRA training", url:"github.com/bmaltais/kohya_ss", type:"Open Source"},
+          {name:"D-ID — AI avatars", url:"d-id.com", type:"Platform"},
+        ],
+        practice:"Create a 60-second video of your AI clone introducing itself — your name, what you do, and one thing you're working on. Share it on LinkedIn with a post explaining how you made it.",
+        checklist:["Collected and prepared 30+ training photos","Trained face LoRA successfully","Cloned voice in ElevenLabs","Created 60-sec AI clone video"],
+        timeEstimate:"~14 hours"
+      },
+    ]
+  },
+  {
+    id:4, icon:"📣", title:"AI Content Creation Engine", subtitle:"Replication Layer", duration:"2–3 Weeks",
+    color:"#B45309", glow:"rgba(180,83,9,0.12)", bgLight:"#FFFBEB", border:"#FDE68A",
+    topics:[
+      { name:"Multi-Format AI Content", xp:150, difficulty:"Beginner",
+        details:[
+          {text:"Text: GPT-4o or Claude for blogs, scripts, social posts", deep:"The secret to great AI text: give it your voice. Paste 3 samples of your own writing first, then say 'Write in this style:'. Use Claude for long-form. Use GPT-4o for shorter, snappier content. Always edit the output — AI is a first draft machine, not a publishing machine."},
+          {text:"Audio: ElevenLabs + Descript for podcast-style audio", deep:"Workflow: Claude writes a conversational 1,000-word script → ElevenLabs converts to audio in your cloned voice → Descript lets you edit audio by editing text (delete a sentence, the audio is deleted). Descript's Overdub feature lets you fix mistakes by typing corrections."},
+          {text:"Video: Runway ML, Sora, Kling AI for video generation", deep:"Runway Gen-3: best for cinematic transformations. Kling AI (from Kuaishou): best for realistic motion, free tier available. Sora: OpenAI's model, requires ChatGPT Plus. Tip: start with a strong reference image, not just text — img2video produces far better results."},
+          {text:"Build content templates that scale your output 10x", deep:"A template is a structured prompt with fill-in-the-blank variables. Example: 'Write a LinkedIn post about [TOPIC] targeting [AUDIENCE]. Hook: counterintuitive claim. Body: 3 short paragraphs. CTA: ask a question.' Save 20 templates in Notion."},
+        ],
+        resources:[
+          {name:"Runway ML — AI video", url:"runwayml.com", type:"Platform"},
+          {name:"Descript — audio/video editing", url:"descript.com", type:"Tool"},
+          {name:"Kling AI — video generation", url:"klingai.com", type:"Platform"},
+          {name:"Pictory — video from text", url:"pictory.ai", type:"Tool"},
+        ],
+        practice:"Take ONE idea and turn it into 5 content pieces: a blog post, a tweet thread, a LinkedIn post, a 30-sec video script, and a podcast clip script. Time yourself — aim to do this in under 2 hours using AI.",
+        checklist:["Created your master content template library","Produced one piece in each format","Completed the 1-idea-to-5-formats challenge","Timed and documented your content workflow"],
+        timeEstimate:"~8 hours"
+      },
+      { name:"Replicate Your Workflow", xp:200, difficulty:"Intermediate",
+        details:[
+          {text:"Use Notion AI + Claude to document your processes", deep:"The meta-skill: document everything as you do it. After any AI workflow, write a 'recipe': tools used, prompts used, time taken, output quality. In 3 months you'll have a personal AI playbook worth more than any course."},
+          {text:"Build a 'content OS' that auto-formats for each platform", deep:"Each platform has a format: Twitter/X = short, punchy, hooks. LinkedIn = story-first, professional. Instagram = captions + hashtags. YouTube = SEO titles + descriptions. Build one master prompt that outputs all 4 formats simultaneously."},
+          {text:"Create reusable prompt templates for your niche", deep:"Niche-specific templates beat generic ones 10x. The formula: [Context] + [Specific instruction] + [Format] + [Tone] + [Example]. Save in Notion or Raycast AI (for Mac)."},
+          {text:"Automate scheduling with Buffer, Hypefury, or Zapier", deep:"Zapier watches a Notion database → when status = 'Ready' → sends to Buffer for scheduling. Buffer posts at optimal times per platform. Batch-create content once a week, then it auto-distributes."},
+        ],
+        resources:[
+          {name:"Notion AI — workspace automation", url:"notion.so/product/ai", type:"Tool"},
+          {name:"Buffer — social scheduling", url:"buffer.com", type:"Tool"},
+          {name:"Hypefury — Twitter growth", url:"hypefury.com", type:"Tool"},
+          {name:"Typefully — Twitter drafting", url:"typefully.com", type:"Tool"},
+        ],
+        practice:"Create a 30-day content calendar fully generated and scheduled using AI. Pick your niche, generate 30 post ideas with Claude, write all 30 posts, schedule them in Buffer. Then actually post them and track engagement.",
+        checklist:["Built your content OS in Notion","Created 20 reusable prompt templates","Generated full 30-day calendar","Scheduled all posts in Buffer/Hypefury"],
+        timeEstimate:"~10 hours"
+      },
+    ]
+  },
+  {
+    id:5, icon:"🤖", title:"Hands-On AI Agents", subtitle:"Autonomy Layer", duration:"4–5 Weeks",
+    color:"#059669", glow:"rgba(5,150,105,0.12)", bgLight:"#ECFDF5", border:"#A7F3D0",
+    topics:[
+      { name:"AI Agent Fundamentals", xp:250, difficulty:"Intermediate",
+        details:[
+          {text:"Understand: Perception → Reasoning → Action → Memory loop", deep:"Agents are LLMs with a control loop: (1) Perceive input, (2) Reason about what to do (often using CoT internally), (3) Act (call a tool, write code, send a message), (4) Store results to memory, (5) repeat. The key difference from chatbots: agents persist across multiple steps without human input."},
+          {text:"Learn ReAct, Plan-and-Execute, and Multi-Agent patterns", deep:"ReAct (Reason + Act): the model alternates between 'Thought:' and 'Action:' until done. Plan-and-Execute: first create a full plan, then execute each step. This is more reliable for long tasks. Multi-Agent: multiple specialized agents collaborate — one plans, one executes, one verifies."},
+          {text:"Tools: web search, code execution, file I/O, APIs", deep:"Essential agent tools: (1) Web search — Tavily or Serper APIs. (2) Code execution — E2B or Modal for sandboxed Python. (3) File I/O — read/write files. (4) APIs — call any HTTP endpoint. (5) Computer use — Anthropic's Claude can control a browser/desktop directly."},
+          {text:"Memory types: short-term (context), long-term (vector DB)", deep:"Short-term: everything in the current context window (~200K tokens for Claude). Long-term: stored externally. Semantic memory: vector DB (Pinecone, Chroma) — stores knowledge as embeddings, retrieves by similarity. Most agents use RAG (Retrieval-Augmented Generation) for long-term memory."},
+        ],
+        resources:[
+          {name:"LangChain documentation", url:"python.langchain.com/docs", type:"Docs"},
+          {name:"AutoGen by Microsoft", url:"github.com/microsoft/autogen", type:"Framework"},
+          {name:"CrewAI framework", url:"crewai.com", type:"Framework"},
+          {name:"Tavily — AI-optimized web search", url:"tavily.com", type:"API"},
+        ],
+        practice:"Build a research agent: give it a topic, it autonomously searches the web (3+ sources), extracts key info, synthesizes findings, and outputs a structured 500-word report with citations. Use LangChain + Tavily.",
+        checklist:["Understood the agent control loop","Built a basic ReAct agent","Added web search tool integration","Completed the research agent project"],
+        timeEstimate:"~12 hours"
+      },
+      { name:"Multi-Agent Systems", xp:350, difficulty:"Advanced",
+        details:[
+          {text:"Use CrewAI to assign roles: researcher, writer, critic", deep:"CrewAI lets you define Agents (with role, goal, backstory, tools) and Tasks (with description, expected_output, agent). A Crew orchestrates them. Example crew: Agent 1 = 'Senior Researcher', Agent 2 = 'Content Writer', Agent 3 = 'Editor'. Each agent specializes."},
+          {text:"Build an agent team that completes a full project autonomously", deep:"For a full blog post pipeline: Task 1 (Researcher): find 5 sources on topic → Task 2 (Outliner): create H2/H3 structure → Task 3 (Writer): write full draft → Task 4 (SEO specialist): add keywords → Task 5 (Editor): fix grammar. All autonomous."},
+          {text:"Implement memory with Pinecone or ChromaDB (vector stores)", deep:"Vector stores let agents remember past interactions. Flow: (1) Generate embedding of text, (2) Store in Pinecone with metadata, (3) When agent needs to remember, embed the query, (4) Retrieve top-k most similar stored memories. ChromaDB is local/free. Pinecone is hosted/scalable."},
+          {text:"Add human-in-the-loop checkpoints for quality control", deep:"Never let critical agents run fully unattended on first deploy. Add checkpoints: after research step, pause and ask human 'Approve this research?'. LangGraph has built-in interrupt() function for this. After 20 successful runs, remove the checkpoint. Trust, then verify, then automate."},
+        ],
+        resources:[
+          {name:"CrewAI — multi-agent framework", url:"crewai.com", type:"Framework"},
+          {name:"LangGraph for stateful agents", url:"langchain-ai.github.io/langgraph", type:"Docs"},
+          {name:"Pinecone — vector database", url:"pinecone.io", type:"Platform"},
+          {name:"E2B — sandboxed code execution", url:"e2b.dev", type:"API"},
+        ],
+        practice:"Build a 3-agent team: one researches, one writes, one edits — fully automated blog post pipeline. Deploy it to produce one post per day on autopilot. Track: quality score, time saved vs manual, cost per post.",
+        checklist:["Built single CrewAI agent successfully","Created 3-agent pipeline","Integrated vector DB memory","Deployed fully automated pipeline"],
+        timeEstimate:"~16 hours"
+      },
+    ]
+  },
+  {
+    id:6, icon:"🚀", title:"Build AI Products (No-Code)", subtitle:"Product Layer", duration:"3–4 Weeks",
+    color:"#1D4ED8", glow:"rgba(29,78,216,0.12)", bgLight:"#EFF6FF", border:"#BFDBFE",
+    topics:[
+      { name:"No-Code AI App Building", xp:250, difficulty:"Intermediate",
+        details:[
+          {text:"Use Bubble.io or Glide for frontend app building", deep:"Bubble.io: most powerful no-code — build any web app with a visual editor. Learning curve: ~20 hours. Best for complex apps (multi-user, databases, payments). Glide: turns Google Sheets into mobile apps in hours. Best for simple internal tools and MVPs."},
+          {text:"Connect to AI APIs via Zapier or Make.com (no-code API calls)", deep:"In Bubble: use the API Connector plugin to call OpenAI/Claude API. Map UI inputs to API params, display outputs dynamically. In Make.com: HTTP module → POST to api.openai.com/v1/chat/completions → parse JSON response. No code needed."},
+          {text:"Use Pineapple Builder or Softr for quick landing pages", deep:"Pineapple Builder: AI generates an entire landing page from a description. Softr: turns Airtable data into web apps and portals. Add Stripe via Softr's built-in integration for monetization."},
+          {text:"Build internal tools with Retool or AppSmith", deep:"Retool: drag-and-drop UI connected to any database or API. Used by Brex, Plaid, Amazon. Build an AI admin dashboard in 4 hours. AppSmith: open-source alternative (self-host for free)."},
+        ],
+        resources:[
+          {name:"Bubble.io — no-code web apps", url:"bubble.io", type:"Platform"},
+          {name:"Glide — apps from spreadsheets", url:"glideapps.com", type:"Platform"},
+          {name:"Retool — internal tools", url:"retool.com", type:"Platform"},
+          {name:"Softr — Airtable-powered apps", url:"softr.io", type:"Platform"},
+        ],
+        practice:"Launch a micro-SaaS: an AI tool that solves ONE specific problem for a niche. Examples: AI resume reviewer for nurses, AI email writer for real estate agents. Put it online with a real payment link. Aim for $1 in revenue.",
+        checklist:["Chosen a specific niche problem","Built MVP in Bubble or Glide","Integrated AI API endpoint","Published live with payment link"],
+        timeEstimate:"~15 hours"
+      },
+      { name:"Product Thinking for AI", xp:200, difficulty:"Intermediate",
+        details:[
+          {text:"Define: Who is it for? What problem does it solve?", deep:"The trap: building a cool AI demo instead of a product. A product has a specific user (not 'everyone'), a painful problem (they'd pay to solve it), and a clear outcome. Write one sentence: '[Product name] helps [specific person] [do X] so they can [outcome]'."},
+          {text:"Design user flows using FigJam or Whimsical", deep:"A user flow maps every screen and decision a user makes. Start → Sign up → Onboarding → Core feature → Result → Share/Upgrade. In Whimsical: use the Flowchart tool, 30 minutes max. This prevents building features nobody needs."},
+          {text:"Build an MVP in 1 week using no-code stack", deep:"MVP = the minimum set of features that delivers the core value. For an AI writing tool: MVP = text input + AI output. Not: user accounts, history, sharing, templates. Add those after validation. Week 1: build. Week 2: get 10 users."},
+          {text:"Collect feedback and iterate using AI-powered surveys", deep:"Use Typeform with Notion integration. After users complete a task: 3 questions max. (1) On a scale 1–10, how likely are you to recommend this? (2) What's the #1 thing missing? (3) What would make you pay for this? Feed responses to Claude."},
+        ],
+        resources:[
+          {name:"Whimsical — flowcharts & wireframes", url:"whimsical.com", type:"Tool"},
+          {name:"Typeform — user surveys", url:"typeform.com", type:"Tool"},
+          {name:"ProductHunt — product launch", url:"producthunt.com", type:"Community"},
+          {name:"Lenny's Newsletter — product advice", url:"lennysnewsletter.com", type:"Newsletter"},
+        ],
+        practice:"Submit your AI product to ProductHunt. Get 10 real users to try it (not friends — strangers). Collect feedback. Write a post-launch retrospective: what worked, what failed, what you'd do differently.",
+        checklist:["Written the one-sentence product definition","Mapped complete user flow in Whimsical","Built and published MVP","Collected feedback from 10+ real users"],
+        timeEstimate:"~20 hours"
+      },
+    ]
+  },
+  {
+    id:7, icon:"⚙️", title:"Automations & Agentic Workflows", subtitle:"Mastery Layer", duration:"4–5 Weeks",
+    color:"#0369A1", glow:"rgba(3,105,161,0.12)", bgLight:"#F0F9FF", border:"#BAE6FD",
+    topics:[
+      { name:"Advanced Automation Stacks", xp:300, difficulty:"Advanced",
+        details:[
+          {text:"Master Make.com (Integromat) for complex multi-step workflows", deep:"Make.com is the most powerful no-code automation tool. Key concepts: Scenarios (workflows), Modules (steps), Routers (conditional branching), Iterators (loop through arrays). Build a scenario with 10+ modules. Use the HTTP module to call any AI API."},
+          {text:"Use n8n (open-source) for self-hosted automation", deep:"n8n = Make.com but open-source and self-hostable. Deploy on Railway or Hetzner VPS for ~$5/month. Supports 400+ integrations. Has an AI Agent node built-in. Best for teams that need data privacy or high volume automations without per-operation costs."},
+          {text:"Build event-driven workflows: trigger → process → output", deep:"Event-driven = workflow starts when something happens. Examples: (1) New form submission → AI scores lead → add to CRM. (2) New tweet mentioning you → AI analyzes sentiment → notify Slack. (3) New invoice received → AI extracts data → adds to spreadsheet."},
+          {text:"Integrate AI steps inside automation chains (GPT calls in Make)", deep:"In Make.com: HTTP module → POST to https://api.openai.com/v1/chat/completions → Body with your prompt. Map the response content to the next module. This lets you add AI intelligence to any automation at any step."},
+        ],
+        resources:[
+          {name:"Make.com — no-code automation", url:"make.com", type:"Platform"},
+          {name:"n8n — self-hosted automation", url:"n8n.io", type:"Open Source"},
+          {name:"Zapier — simple automation", url:"zapier.com", type:"Platform"},
+          {name:"Activepieces — open-source Zapier", url:"activepieces.com", type:"Open Source"},
+        ],
+        practice:"Build this automation: New email in Gmail → AI (Claude) reads and categorizes it → adds summary + category to Notion database → if category = 'Urgent', sends Slack DM to you. Time to build: under 2 hours in Make.com.",
+        checklist:["Built first Make.com scenario","Created n8n workflow on self-hosted instance","Integrated AI step in automation","Built complete email-to-Notion pipeline"],
+        timeEstimate:"~12 hours"
+      },
+      { name:"Agentic Workflow Architecture", xp:400, difficulty:"Expert",
+        details:[
+          {text:"Design end-to-end agentic pipelines with LangGraph", deep:"LangGraph models your agent as a graph: nodes (functions that transform state) and edges (transitions between nodes, can be conditional). Unlike LangChain chains, LangGraph supports cycles (agent can loop, retry, re-plan). This enables much more robust agents that can self-correct."},
+          {text:"Implement conditional branching based on AI output", deep:"Example: after research step, agent checks: 'Is the research sufficient?' If yes → proceed to writing. If no → loop back and search again (with a max_retries limit). In LangGraph: define a conditional_edge that routes based on a function."},
+          {text:"Add human approval nodes at critical decision points", deep:"LangGraph's interrupt() function pauses execution and waits for human input. Use case: before sending an email on behalf of a user, pause and show the draft. User approves → graph continues. This makes agents safe to deploy for high-stakes actions."},
+          {text:"Monitor, log, and debug agent runs with LangSmith", deep:"LangSmith gives you traces of every agent run: each LLM call, token usage, latency, tool calls. You can replay any run, add annotations, and set up automated evaluations. Essential for debugging when your agent fails. Also tracks costs."},
+        ],
+        resources:[
+          {name:"LangGraph documentation", url:"langchain-ai.github.io/langgraph", type:"Docs"},
+          {name:"LangSmith — agent observability", url:"smith.langchain.com", type:"Platform"},
+          {name:"Flowise AI — visual agent builder", url:"flowiseai.com", type:"Tool"},
+          {name:"Temporal — workflow orchestration", url:"temporal.io", type:"Platform"},
+        ],
+        practice:"Build a full client onboarding workflow: Typeform submission → AI qualifies lead (scores 1–10) → if score ≥ 7: books Calendly meeting + sends personalized welcome email → logs everything to Notion. Full LangGraph pipeline with human approval before email send.",
+        checklist:["Built LangGraph graph with 3+ nodes","Implemented conditional branching","Added human-in-the-loop interrupt","Set up LangSmith monitoring"],
+        timeEstimate:"~18 hours"
+      },
+    ]
+  },
+];
+
+const DIFF_COLORS = { Beginner:"#059669", Intermediate:"#D97706", Advanced:"#DC2626", Expert:"#7C3AED" };
+const DIFF_BG = { Beginner:"#ECFDF5", Intermediate:"#FFFBEB", Advanced:"#FEF2F2", Expert:"#F5F3FF" };
+const DIFF_BORDER = { Beginner:"#A7F3D0", Intermediate:"#FDE68A", Advanced:"#FECACA", Expert:"#DDD6FE" };
+const STORAGE_KEY = "ai_roadmap_html_v1";
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let activeStep = 0, activeTopic = 0, expandedDetail = null, showNotes = false;
+let persist = { completed:{}, notes:{} };
+try { const r = localStorage.getItem(STORAGE_KEY); if(r) persist = JSON.parse(r); } catch{}
+
+function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(persist)); } catch{} }
+function cKey(si,ti,ci) { return `${si}-${ti}-${ci}`; }
+function tKey(si,ti) { return `${si}-${ti}`; }
+function isTopicDone(si,ti) { return steps[si].topics[ti].checklist.every((_,ci)=>persist.completed[cKey(si,ti,ci)]); }
+
+function totalXP() { return steps.reduce((a,s)=>a+s.topics.reduce((b,t)=>b+t.xp,0),0); }
+function earnedXP() { return steps.reduce((a,s,si)=>a+s.topics.reduce((b,t,ti)=>b+(isTopicDone(si,ti)?t.xp:0),0),0); }
+function totalTopics() { return steps.reduce((a,s)=>a+s.topics.length,0); }
+function completedTopics() { return steps.reduce((a,s,si)=>a+s.topics.filter((_,ti)=>isTopicDone(si,ti)).length,0); }
+
+// ── APPLY STEP COLORS ─────────────────────────────────────────────────────
+function applyStepColors(step) {
+  document.documentElement.style.setProperty('--step-color', step.color);
+  document.documentElement.style.setProperty('--step-bg', step.bgLight);
+  document.documentElement.style.setProperty('--step-bg-light', step.bgLight);
+  document.documentElement.style.setProperty('--step-border', step.border);
+  document.documentElement.style.setProperty('--step-glow', step.glow);
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function render() {
+  const step = steps[activeStep];
+  const topic = step.topics[activeTopic];
+  applyStepColors(step);
+
+  // Topbar
+  document.getElementById('logo-step-name').textContent = step.title;
+  document.getElementById('logo-step-name').style.color = step.color;
+  document.getElementById('topbar-step-label').textContent = `Step ${step.id} · ${step.subtitle} · 7 Steps · 18 Weeks`;
+  document.getElementById('duration-pill').textContent = step.duration;
+  const txp = totalXP(), exp = earnedXP(), tt = totalTopics(), ct = completedTopics();
+  document.getElementById('xp-label').textContent = `⚡ ${exp} / ${txp} XP`;
+  document.getElementById('xp-bar').style.width = `${Math.round(exp/txp*100)}%`;
+  document.getElementById('topics-done-label').textContent = `${ct}/${tt} done`;
+
+  // Sidebar
+  renderSidebar();
+
+  // Mobile nav
+  renderMobileNav();
+
+  // Topic tabs
+  renderTopicTabs();
+
+  // Content
+  renderContent();
+
+  // Bottom nav
+  renderBottomNav();
+
+  // Sidebar progress
+  const pct = Math.round(ct/tt*100);
+  document.getElementById('sidebar-pct').textContent = `${pct}%`;
+  const sb = document.getElementById('sidebar-bar');
+  sb.style.width = `${pct}%`;
+  sb.style.background = step.color;
+}
+
+function renderSidebar() {
+  const list = document.getElementById('steps-list');
+  list.innerHTML = steps.map((s, si) => {
+    const done = s.topics.every((_,ti)=>isTopicDone(si,ti));
+    const partial = !done && s.topics.some((_,ti)=>isTopicDone(si,ti));
+    const isActive = si === activeStep;
+    const badge = done ? `<span class="step-done-badge">✓</span>` : partial ? `<span class="step-partial-dot" style="background:${s.color}"></span>` : '';
+    const topics = isActive ? `<div class="topic-list">${s.topics.map((t,ti)=>{
+      const tdone = isTopicDone(si,ti);
+      const tactive = ti === activeTopic;
+      const inner = tdone ? `<span class="check-tick">✓</span>` : tactive ? `<div class="check-inner"></div>` : '';
+      const checkCls = tdone ? 'done' : tactive ? 'active-dot' : '';
+      return `<button class="topic-btn${tactive?' active':''}${tdone?' done-topic':''}" onclick="selectTopic(${si},${ti})">
+        <div class="topic-check ${checkCls}">${inner}</div>
+        <span class="topic-name">${t.name}</span>
+      </button>`;
+    }).join('')}</div>` : '';
+    return `<div class="step-item${isActive?' active':''}" style="${isActive?`border-left-color:${s.color};background:${s.bgLight}`:''}">
+      <button class="step-btn" onclick="selectStep(${si})">
+        <div class="step-icon-wrap"><span class="step-emoji">${s.icon}</span>${badge}</div>
+        <div class="step-text">
+          <div class="step-num">STEP ${s.id}</div>
+          <div class="step-title">${s.title}</div>
+        </div>
+      </button>
+      ${topics}
+    </div>`;
+  }).join('');
+}
+
+function renderMobileNav() {
+  const mn = document.getElementById('mobile-nav');
+  const step = steps[activeStep];
+  const ct = completedTopics(), tt = totalTopics();
+  const pct = Math.round(ct/tt*100);
+  mn.innerHTML = `
+    <div id="mobile-steps">${steps.map((s,si)=>{
+      const done = s.topics.every((_,ti)=>isTopicDone(si,ti));
+      const partial = !done && s.topics.some((_,ti)=>isTopicDone(si,ti));
+      const isActive = si === activeStep;
+      const badge = done ? `<span style="position:absolute;top:-3px;right:-4px;width:10px;height:10px;border-radius:50%;background:#22C55E;border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:5px;color:white;font-weight:bold">✓</span>`
+        : partial ? `<span style="position:absolute;top:-3px;right:-4px;width:8px;height:8px;border-radius:50%;background:${s.color};border:2px solid white;animation:pulse 2s infinite"></span>` : '';
+      return `<button id="mobile-step-pill" class="${isActive?'active':''}" style="${isActive?`border-color:${s.color};background:${s.bgLight}`:''}" onclick="selectStep(${si})">${s.icon}${badge}</button>`;
+    }).join('')}</div>
+    <div id="mobile-overall-progress">
+      <div id="mobile-progress-track"><div id="mobile-progress-fill" style="width:${pct}%;background:${step.color}"></div></div>
+      <div id="mobile-progress-pct">${pct}% complete</div>
+    </div>
+    <div id="mobile-tabs">${step.topics.map((t,ti)=>{
+      const done = isTopicDone(activeStep,ti);
+      const isActive = ti === activeTopic;
+      return `<button class="tab-btn${isActive?' active':''}${done?' done-tab':''}" onclick="selectTopic(${activeStep},${ti})">${done?'✓ ':''}${t.name}</button>`;
+    }).join('')}</div>`;
+}
+
+function renderTopicTabs() {
+  const step = steps[activeStep];
+  document.getElementById('topic-tabs').innerHTML =
+    step.topics.map((t,ti)=>{
+      const done = isTopicDone(activeStep,ti);
+      const isActive = ti === activeTopic;
+      return `<button class="tab-btn${isActive?' active':''}${done?' done-tab':''}" onclick="selectTopic(${activeStep},${ti})">${done?'✓ ':''}${t.name}</button>`;
+    }).join('') + `<span class="subtitle-label">${step.subtitle}</span>`;
+}
+
+function renderContent() {
+  const step = steps[activeStep];
+  const topic = step.topics[activeTopic];
+  const checkedCount = topic.checklist.filter((_,ci)=>persist.completed[cKey(activeStep,activeTopic,ci)]).length;
+  const topicPct = Math.round(checkedCount/topic.checklist.length*100);
+  const note = persist.notes[tKey(activeStep,activeTopic)] || '';
+
+  const sc = document.getElementById('scroll-content');
+  sc.className = 'fade-up';
+  void sc.offsetWidth; // force reflow
+
+  sc.innerHTML = `
+    <!-- Header card -->
+    <div class="topic-header-card" style="border-top-color:${step.color}">
+      <div class="topic-icon-box" style="background:${step.bgLight};border-color:${step.border}">${step.icon}</div>
+      <div style="flex:1;min-width:0">
+        <div class="topic-meta-label" style="color:${step.color}">STEP ${step.id} · TOPIC ${activeTopic+1}/${step.topics.length} · ${step.subtitle.toUpperCase()}</div>
+        <div class="topic-heading">${topic.name}</div>
+        <div class="topic-badges">
+          <span class="badge diff" style="background:${DIFF_BG[topic.difficulty]};color:${DIFF_COLORS[topic.difficulty]};border-color:${DIFF_BORDER[topic.difficulty]}">${topic.difficulty}</span>
+          <span class="badge">⚡ ${topic.xp} XP</span>
+          <span class="badge">🕐 ${topic.timeEstimate}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress checklist -->
+    <div class="progress-box">
+      <div class="progress-box-header">
+        <span class="plabel" style="color:${step.color}">TOPIC PROGRESS</span>
+        <span class="pcount ${topicPct===100?'done':''}">${checkedCount}/${topic.checklist.length} tasks${topicPct===100?' ✓ DONE':''}</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" style="width:${topicPct}%;background:${topicPct===100?'#22C55E':step.color}"></div>
+      </div>
+      ${topic.checklist.map((item,ci)=>{
+        const checked = !!persist.completed[cKey(activeStep,activeTopic,ci)];
+        return `<button class="checklist-item" onclick="toggleCheck(${ci})">
+          <div class="checkbox ${checked?'checked':''}" style="${checked?`border-color:${step.color};background:${step.bgLight}`:''}">
+            ${checked?`<span class="tick" style="color:${step.color}">✓</span>`:''}
+          </div>
+          <span class="checklist-text ${checked?'checked':''}">${item}</span>
+        </button>`;
+      }).join('')}
+    </div>
+
+    <!-- What to learn -->
+    <div class="section-label"><div class="line"></div><span>WHAT TO LEARN — CLICK TO DEEP DIVE</span><div class="line"></div></div>
+    <div class="learn-card">
+      ${topic.details.map((d,i)=>{
+        const isOpen = expandedDetail===i;
+        return `<div class="learn-item">
+          <button class="learn-btn" onclick="toggleDetail(${i})">
+            <span class="learn-diamond" style="color:${step.color}">◆</span>
+            <span class="learn-text">${d.text}</span>
+            <span class="learn-arrow${isOpen?' open':''}">▾</span>
+          </button>
+          ${isOpen?`<div class="deep-dive" style="border-left-color:${step.color}">
+            <div class="deep-dive-label" style="color:${step.color}">DEEP DIVE</div>
+            <div class="deep-dive-text">${d.deep}</div>
+          </div>`:''}
+        </div>`;
+      }).join('')}
+    </div>
+
+    <!-- Resources -->
+    <div class="section-label"><div class="line"></div><span>BEST RESOURCES</span><div class="line"></div></div>
+    <div class="resources-grid" style="margin-bottom:24px">
+      ${topic.resources.map(r=>`
+        <div class="resource-card">
+          <div style="display:flex;gap:10px;align-items:center;min-width:0">
+            <span class="resource-icon">📎</span>
+            <div class="resource-info">
+              <div class="rname">${r.name}</div>
+              <div class="rurl">${r.url}</div>
+            </div>
+          </div>
+          <span class="resource-type" style="color:${step.color};background:${step.bgLight};border-color:${step.border}">${r.type}</span>
+        </div>`).join('')}
+    </div>
+
+    <!-- Mission -->
+    <div class="section-label"><div class="line"></div><span>HANDS-ON MISSION</span><div class="line"></div></div>
+    <div class="mission-card" style="background:linear-gradient(135deg,${step.bgLight},white);border-color:${step.border}">
+      <div class="mission-watermark">🎯</div>
+      <div class="mission-label" style="color:${step.color}">YOUR PRACTICE TASK</div>
+      <div class="mission-text">${topic.practice}</div>
+    </div>
+
+    <!-- Notes -->
+    <div class="section-label"><div class="line"></div><span>YOUR NOTES</span><div class="line"></div></div>
+    <div id="notes-area">${renderNotes(note, step)}</div>
+  `;
+
+  sc.scrollTop = 0;
+}
+
+function renderNotes(note, step) {
+  if (showNotes) {
+    return `<div class="notes-editor" style="border-color:${step.border}">
+      <textarea class="notes-textarea" id="notes-input" placeholder="Jot down: what you learned, what confused you, ideas to try...">${note}</textarea>
+      <div class="notes-actions">
+        <button class="btn-save" style="background:${step.color}" onclick="saveNote()">Save</button>
+        <button class="btn-cancel" onclick="cancelNote()">Cancel</button>
+      </div>
+    </div>`;
+  }
+  return `<button class="notes-trigger ${note?'has-note':''}" style="${note?`border-color:${step.border};background:${step.bgLight}`:''}" onclick="openNote()">
+    <span class="notes-trigger-icon">📝</span>
+    <div style="min-width:0;flex:1">
+      <div class="notes-trigger-label" style="${note?`color:${step.color}`:''}">
+        ${note ? 'NOTES SAVED — click to edit' : 'ADD YOUR NOTES'}
+      </div>
+      ${note ? `<div class="notes-preview">${note}</div>` : ''}
+    </div>
+  </button>`;
+}
+
+function renderBottomNav() {
+  const step = steps[activeStep];
+  const isFirst = activeStep===0 && activeTopic===0;
+  const isLast = activeStep===steps.length-1 && activeTopic===step.topics.length-1;
+
+  document.getElementById('btn-back').disabled = isFirst;
+
+  const dots = document.getElementById('step-dots');
+  dots.innerHTML = steps.map((s,si)=>`<button class="step-dot${si===activeStep?' active':''}" style="${si===activeStep?`background:${step.color}`:''}" onclick="selectStep(${si})"></button>`).join('');
+
+  const nextBtn = document.getElementById('btn-next');
+  if (isLast) {
+    nextBtn.textContent = `✓ AI Generalist! (${earnedXP()} XP)`;
+    nextBtn.className = 'nav-btn complete';
+    nextBtn.onclick = null;
+  } else {
+    nextBtn.className = 'nav-btn primary';
+    nextBtn.style.background = step.color;
+    nextBtn.style.boxShadow = `0 4px 14px ${step.glow}`;
+    nextBtn.onclick = goNext;
+    if (activeTopic < step.topics.length-1) nextBtn.textContent = 'Next Topic →';
+    else nextBtn.textContent = `Step ${activeStep+2}: ${steps[activeStep+1].icon} →`;
+  }
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────
+function selectStep(si) { activeStep=si; activeTopic=0; expandedDetail=null; showNotes=false; render(); }
+function selectTopic(si,ti) { activeStep=si; activeTopic=ti; expandedDetail=null; showNotes=false; render(); }
+function goNext() {
+  const step=steps[activeStep];
+  if(activeTopic<step.topics.length-1){ activeTopic++; } else if(activeStep<steps.length-1){ activeStep++; activeTopic=0; }
+  expandedDetail=null; showNotes=false; render();
+}
+function goPrev() {
+  if(activeTopic>0){ activeTopic--; } else if(activeStep>0){ activeStep--; activeTopic=steps[activeStep].topics.length-1; }
+  expandedDetail=null; showNotes=false; render();
+}
+function toggleCheck(ci) {
+  const key=cKey(activeStep,activeTopic,ci);
+  persist.completed[key]=!persist.completed[key];
+  save(); render();
+}
+function toggleDetail(i) { expandedDetail = expandedDetail===i ? null : i; renderContent(); }
+function openNote() { showNotes=true; renderContent(); setTimeout(()=>{const el=document.getElementById('notes-input');if(el)el.focus();},50); }
+function cancelNote() { showNotes=false; renderContent(); }
+function saveNote() {
+  const val = (document.getElementById('notes-input')||{}).value||'';
+  persist.notes[tKey(activeStep,activeTopic)]=val;
+  save(); showNotes=false; render();
+}
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
